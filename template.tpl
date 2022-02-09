@@ -120,6 +120,12 @@ ___TEMPLATE_PARAMETERS___
         ]
       },
       {
+        "type": "TEXT",
+        "name": "orderId",
+        "displayName": "Order Id",
+        "simpleValueType": true
+      },
+      {
         "type": "SELECT",
         "name": "revenue",
         "displayName": "Revenue",
@@ -223,43 +229,38 @@ if (data.type === 'page_view') {
     data.gtmOnSuccess();
 } else {
     const clickId = getCookieValues('taboola_cid')[0] || '';
+    let requestUrl = 'https://trc.taboola.com/'+enc(data.merchantId)+'/log/3/unip?id='+enc(data.merchantId)+'&click-id='+enc(clickId)+'&click_id='+enc(clickId)+'&name='+enc(data.eventName)+'&en='+enc(data.eventName)+'&revenue='+enc(data.revenue)+'&orderId='+enc(data.orderId)+'&currency=' + enc(data.currencyCode);
 
-    if (clickId) {
-        let requestUrl = 'https://trc.taboola.com/'+enc(data.merchantId)+'/log/3/unip?id='+enc(data.merchantId)+'&click-id='+enc(clickId)+'&click_id='+enc(clickId)+'&name='+enc(data.eventName)+'&en='+enc(data.eventName)+'&revenue='+enc(data.revenue)+'&currency=' + enc(data.currencyCode);
+    if (isLoggingEnabled) {
+        logToConsole(JSON.stringify({
+            'Name': 'Taboola',
+            'Type': 'Request',
+            'TraceId': traceId,
+            'EventName': data.eventName,
+            'RequestMethod': 'GET',
+            'RequestUrl': requestUrl,
+        }));
+    }
 
+    sendHttpRequest(requestUrl, (statusCode, headers, body) => {
         if (isLoggingEnabled) {
             logToConsole(JSON.stringify({
                 'Name': 'Taboola',
-                'Type': 'Request',
+                'Type': 'Response',
                 'TraceId': traceId,
                 'EventName': data.eventName,
-                'RequestMethod': 'GET',
-                'RequestUrl': requestUrl,
+                'ResponseStatusCode': statusCode,
+                'ResponseHeaders': headers,
+                'ResponseBody': body,
             }));
         }
 
-        sendHttpRequest(requestUrl, (statusCode, headers, body) => {
-            if (isLoggingEnabled) {
-                logToConsole(JSON.stringify({
-                    'Name': 'Taboola',
-                    'Type': 'Response',
-                    'TraceId': traceId,
-                    'EventName': data.eventName,
-                    'ResponseStatusCode': statusCode,
-                    'ResponseHeaders': headers,
-                    'ResponseBody': body,
-                }));
-            }
-
-            if (statusCode >= 200 && statusCode < 300) {
-                data.gtmOnSuccess();
-            } else {
-                data.gtmOnFailure();
-            }
-        }, {method: 'GET'});
-    } else {
-        data.gtmOnSuccess();
-    }
+        if (statusCode >= 200 && statusCode < 300) {
+            data.gtmOnSuccess();
+        } else {
+            data.gtmOnFailure();
+        }
+    }, {method: 'GET'});
 }
 
 function enc(data) {
