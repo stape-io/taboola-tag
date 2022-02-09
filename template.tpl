@@ -96,6 +96,20 @@ ___TEMPLATE_PARAMETERS___
     "subParams": [
       {
         "type": "TEXT",
+        "name": "merchantId",
+        "displayName": "Merchant Id",
+        "simpleValueType": true,
+        "valueValidators": [
+          {
+            "type": "NON_EMPTY"
+          },
+          {
+            "type": "POSITIVE_NUMBER"
+          }
+        ]
+      },
+      {
+        "type": "TEXT",
         "name": "eventName",
         "displayName": "Event Name",
         "simpleValueType": true,
@@ -211,7 +225,7 @@ if (data.type === 'page_view') {
     const clickId = getCookieValues('taboola_cid')[0] || '';
 
     if (clickId) {
-        let requestUrl = 'https://trc.taboola.com/actions-handler/log/3/s2s-action?click-id='+enc(clickId)+'&name='+enc(data.eventName)+'&revenue='+enc(data.revenue)+'&currency=' + enc(data.currencyCode);
+        let requestUrl = 'https://trc.taboola.com/'+enc(data.merchantId)+'/log/3/unip?id='+enc(data.merchantId)+'&click-id='+enc(clickId)+'&click_id='+enc(clickId)+'&name='+enc(data.eventName)+'&en='+enc(data.eventName)+'&revenue='+enc(data.revenue)+'&currency=' + enc(data.currencyCode);
 
         if (isLoggingEnabled) {
             logToConsole(JSON.stringify({
