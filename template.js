@@ -37,7 +37,7 @@ if (data.type === 'page_view') {
     data.gtmOnSuccess();
 } else {
     const clickId = getCookieValues('taboola_cid')[0] || '';
-    let requestUrl = 'https://trc.taboola.com/'+enc(data.merchantId)+'/log/3/unip?id='+enc(data.merchantId)+'&click-id='+enc(clickId)+'&click_id='+enc(clickId)+'&name='+enc(data.eventName)+'&en='+enc(data.eventName)+'&revenue='+enc(data.revenue)+'&orderId='+enc(data.orderId)+'&currency=' + enc(data.currencyCode);
+    let requestUrl = 'https://trc.taboola.com/actions-handler/log/3/s2s-action?name='+enc(data.eventName)+'&click-id='+enc(clickId)+'&revenue='+enc(data.revenue)+'&currency='+enc(data.currencyCode)+'&orderid='+enc(data.orderId);
 
     if (isLoggingEnabled) {
         logToConsole(JSON.stringify({
@@ -45,7 +45,7 @@ if (data.type === 'page_view') {
             'Type': 'Request',
             'TraceId': traceId,
             'EventName': data.eventName,
-            'RequestMethod': 'GET',
+            'RequestMethod': 'POST',
             'RequestUrl': requestUrl,
         }));
     }
@@ -68,7 +68,7 @@ if (data.type === 'page_view') {
         } else {
             data.gtmOnFailure();
         }
-    }, {method: 'GET'});
+    }, {method: 'POST'});
 }
 
 function enc(data) {
