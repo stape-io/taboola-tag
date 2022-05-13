@@ -1,5 +1,7 @@
 homepage: "https://stape.io/"
 versions:
+  - sha: 9f3470a8eb2c1252291554f51cf6f1591d95e731
+    changeNotes: Update Taboola api.
   - sha: 9c82a3fa1b2a6805cbb2910ed19d985714ef12d5
     changeNotes: Add Order Id field.
   - sha: a3b7287ac14254ff1575f23fa8f4e714ebdee342
