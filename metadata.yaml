@@ -1,5 +1,7 @@
 homepage: "https://stape.io/"
 versions:
+  - sha: 1114da3e8baecc8bcc47414190bcafa9e0ef3f14
+    changeNotes: Not send request if click-id not present.
   - sha: 9f3470a8eb2c1252291554f51cf6f1591d95e731
     changeNotes: Update Taboola api.
   - sha: 9c82a3fa1b2a6805cbb2910ed19d985714ef12d5
