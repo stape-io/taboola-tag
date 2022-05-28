@@ -37,6 +37,13 @@ if (data.type === 'page_view') {
     data.gtmOnSuccess();
 } else {
     const clickId = getCookieValues('taboola_cid')[0] || '';
+
+    if (!clickId) {
+        data.gtmOnSuccess();
+
+        return;
+    }
+
     let requestUrl = 'https://trc.taboola.com/actions-handler/log/3/s2s-action?name='+enc(data.eventName)+'&click-id='+enc(clickId)+'&revenue='+enc(data.revenue)+'&currency='+enc(data.currencyCode)+'&orderid='+enc(data.orderId);
 
     if (isLoggingEnabled) {
