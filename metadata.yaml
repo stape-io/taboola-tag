@@ -1,5 +1,7 @@
 homepage: "https://stape.io/"
 versions:
+  - sha: dd6d17a977aa103f3fb75b91ea35014264b72b90
+    changeNotes: Remove Merchant Id field.
   - sha: 1114da3e8baecc8bcc47414190bcafa9e0ef3f14
     changeNotes: Not send request if click-id not present.
   - sha: 9f3470a8eb2c1252291554f51cf6f1591d95e731
