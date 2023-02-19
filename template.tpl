@@ -96,20 +96,6 @@ ___TEMPLATE_PARAMETERS___
     "subParams": [
       {
         "type": "TEXT",
-        "name": "merchantId",
-        "displayName": "Merchant Id",
-        "simpleValueType": true,
-        "valueValidators": [
-          {
-            "type": "NON_EMPTY"
-          },
-          {
-            "type": "POSITIVE_NUMBER"
-          }
-        ]
-      },
-      {
-        "type": "TEXT",
         "name": "eventName",
         "displayName": "Event Name",
         "simpleValueType": true,
