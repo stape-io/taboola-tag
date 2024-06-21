@@ -123,6 +123,13 @@ ___TEMPLATE_PARAMETERS___
         "displayName": "Currency Code",
         "simpleValueType": true,
         "help": "The value must be a 3-letter currency code per ISO standard (e.g., \"GBP\")."
+      },
+      {
+        "type": "TEXT",
+        "name": "clickId",
+        "displayName": "Click Id Override (Optional)",
+        "simpleValueType": true,
+        "help": "\u003cb\u003etaboola_cid\u003c/b\u003e - cookie will be used by default"
       }
     ],
     "enablingConditions": [
@@ -211,7 +218,7 @@ if (data.type === 'page_view') {
 
   data.gtmOnSuccess();
 } else {
-  const clickId = getCookieValues('taboola_cid')[0] || '';
+  const clickId = data.clickId || getCookieValues('taboola_cid')[0] || '';
 
   if (!clickId) {
     data.gtmOnSuccess();
