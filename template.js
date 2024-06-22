@@ -36,7 +36,7 @@ if (data.type === 'page_view') {
 
   data.gtmOnSuccess();
 } else {
-  const clickId = getCookieValues('taboola_cid')[0] || '';
+  const clickId = data.clickId || getCookieValues('taboola_cid')[0] || '';
 
   if (!clickId) {
     data.gtmOnSuccess();

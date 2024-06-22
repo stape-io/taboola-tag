@@ -1,5 +1,7 @@
 homepage: "https://stape.io/"
 versions:
+  - sha: 5c9555f534a50c64cec537e69686fc4c5a11e1a6
+    changeNotes: Added Click Id Override support.
   - sha: dd6d17a977aa103f3fb75b91ea35014264b72b90
     changeNotes: Remove Merchant Id field.
   - sha: 1114da3e8baecc8bcc47414190bcafa9e0ef3f14
