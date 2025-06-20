@@ -45,17 +45,57 @@ ___TEMPLATE_PARAMETERS___
     ],
     "simpleValueType": true,
     "defaultValue": "page_view",
-    "help": "\u003cb\u003ePageView\u003c/b\u003e - stores the {click_id} URL parameter inside the taboola_cid cookie\u003cbr\u003e\u003cbr\u003e\n\u003cb\u003eConversion\u003c/b\u003e - Send request with data about the conversion to the Taboola"
+    "help": "\u003cb\u003ePageView\u003c/b\u003e - stores the \u003ci\u003e{click_id}\u003c/i\u003e URL parameter inside the \u003ci\u003etaboola_cid\u003c/i\u003e cookie\u003cbr\u003e\u003cbr\u003e\n\u003cb\u003eConversion\u003c/b\u003e - Send request with data about the conversion to Taboola"
   },
   {
-    "type": "TEXT",
-    "name": "clickIdParameterName",
-    "displayName": "Url parameter name for obtaining Taboola click_id",
-    "simpleValueType": true,
-    "help": "More info about click_id can be found in the Taboola \u003ca href\u003d\"https://help.taboola.com/hc/en-us/articles/115006850567-How-to-Track-Conversions-Using-Server-to-Server-Integration-S2S-\" target\u003d\"_blank\"\u003edocumentation\u003c/a\u003e.",
-    "valueValidators": [
+    "type": "GROUP",
+    "name": "pageViewGroup",
+    "groupStyle": "NO_ZIPPY",
+    "subParams": [
       {
-        "type": "NON_EMPTY"
+        "type": "TEXT",
+        "name": "clickIdParameterName",
+        "displayName": "URL parameter name for obtaining Taboola click_id",
+        "simpleValueType": true,
+        "help": "More info about the \u003ci\u003eclick_id\u003c/i\u003e can be found in Taboola \u003ca href\u003d\"https://developers.taboola.com/pixel/docs/s2s-manual-integration#add-the-click-id-macro\" target\u003d\"_blank\"\u003edocumentation\u003c/a\u003e.",
+        "valueValidators": [
+          {
+            "type": "NON_EMPTY"
+          }
+        ]
+      },
+      {
+        "type": "TEXT",
+        "name": "expiration",
+        "displayName": "Expiration time for the taboola_cid cookie in seconds",
+        "simpleValueType": true,
+        "valueValidators": [
+          {
+            "type": "NON_EMPTY"
+          },
+          {
+            "type": "NON_NEGATIVE_NUMBER"
+          }
+        ],
+        "defaultValue": 0,
+        "help": "Use 0 for saving only for the session."
+      },
+      {
+        "type": "GROUP",
+        "name": "cookieSettingsGroup",
+        "displayName": "Cookie Settings",
+        "groupStyle": "ZIPPY_OPEN_ON_PARAM",
+        "subParams": [
+          {
+            "type": "TEXT",
+            "name": "cookieDomain",
+            "displayName": "Cookie Domain",
+            "simpleValueType": true,
+            "help": "Enable this option to override the cookie domain.\n\u003cbr/\u003e\nEnter your website\u0027s top-level domain as a fixed value (e.g., example.com).\n\u003cbr/\u003e\nIf left as \u003ci\u003eauto\u003c/i\u003e, the top-level domain will be automatically determined using the following priority:\n\u003cul\u003e\n\u003cli\u003eTop-level domain of the \u003ci\u003eForwarded\u003c/i\u003e header (if present).\u003c/li\u003e\n\u003cli\u003eTop-level domain of the \u003ci\u003eX-Forwarded-Host\u003c/i\u003e header (if present).\u003c/li\u003e\n\u003cli\u003eTop-level domain of the \u003ci\u003eHost\u003c/i\u003e header.\u003c/li\u003e\n\u003c/ul\u003e",
+            "defaultValue": "auto",
+            "valueHint": "example.com"
+          }
+        ]
       }
     ],
     "enablingConditions": [
@@ -67,33 +107,29 @@ ___TEMPLATE_PARAMETERS___
     ]
   },
   {
-    "type": "TEXT",
-    "name": "expiration",
-    "displayName": "Expiration time for the taboola_cid cookie in seconds.",
-    "simpleValueType": true,
-    "enablingConditions": [
-      {
-        "paramName": "type",
-        "paramValue": "page_view",
-        "type": "EQUALS"
-      }
-    ],
-    "valueValidators": [
-      {
-        "type": "NON_EMPTY"
-      },
-      {
-        "type": "NON_NEGATIVE_NUMBER"
-      }
-    ],
-    "defaultValue": 0,
-    "help": "Use 0 for saving only for the session."
-  },
-  {
     "type": "GROUP",
     "name": "conversionGroup",
     "groupStyle": "NO_ZIPPY",
     "subParams": [
+      {
+        "type": "SELECT",
+        "name": "redactIpAddress",
+        "displayName": "Redact Visitor IP Address",
+        "macrosInSelect": true,
+        "selectItems": [
+          {
+            "value": true,
+            "displayValue": "true"
+          },
+          {
+            "value": false,
+            "displayValue": "false"
+          }
+        ],
+        "simpleValueType": true,
+        "defaultValue": false,
+        "help": "Removes the visitor\u0027s IP address from the request."
+      },
       {
         "type": "TEXT",
         "name": "eventName",
@@ -108,7 +144,7 @@ ___TEMPLATE_PARAMETERS___
       {
         "type": "TEXT",
         "name": "orderId",
-        "displayName": "Order Id",
+        "displayName": "Order ID",
         "simpleValueType": true
       },
       {
@@ -127,9 +163,102 @@ ___TEMPLATE_PARAMETERS___
       {
         "type": "TEXT",
         "name": "clickId",
-        "displayName": "Click Id Override (Optional)",
+        "displayName": "Click ID Override (Optional)",
         "simpleValueType": true,
         "help": "\u003cb\u003etaboola_cid\u003c/b\u003e - cookie will be used by default"
+      },
+      {
+        "type": "TEXT",
+        "name": "eventId",
+        "displayName": "Event ID",
+        "simpleValueType": true,
+        "help": "Optional.\n\u003cbr\u003e\u003cbr\u003e\nUsed to deduplicate events reported from both\nclient-side (pixel) and server-side (S2S) integrations.\n\u003cbr\u003e\u003cbr\u003e\nDefault: \u003ci\u003eeventData.eventId\u003c/i\u003e \u003e \u003ci\u003eeventData.event_id\u003c/i\u003e \u003e \u003ci\u003eeventData.unique_event_id\u003c/i\u003e \u003e \u003ci\u003eeventData.transaction_id\u003c/i\u003e \u003e \u003ci\u003eRandom Generated Event ID\u003c/i\u003e."
+      },
+      {
+        "type": "SELECT",
+        "name": "sendEventFromBrowser",
+        "displayName": "Send Event From Browser (Optional)",
+        "macrosInSelect": true,
+        "selectItems": [
+          {
+            "value": true,
+            "displayValue": "true"
+          },
+          {
+            "value": false,
+            "displayValue": "false"
+          }
+        ],
+        "simpleValueType": true,
+        "defaultValue": true,
+        "help": "If enabled it will instruct the browser to send the event, and it will use the Event ID for deduplicating browser and server events.",
+        "subParams": [
+          {
+            "type": "GROUP",
+            "name": "sendEventFromBrowserGroup",
+            "displayName": "Event From Browser Parameters",
+            "groupStyle": "ZIPPY_OPEN",
+            "subParams": [
+              {
+                "type": "TEXT",
+                "name": "accountId",
+                "displayName": "Account ID",
+                "simpleValueType": true,
+                "valueValidators": [
+                  {
+                    "type": "NON_EMPTY"
+                  },
+                  {
+                    "type": "POSITIVE_NUMBER"
+                  }
+                ],
+                "help": "Taboola Advertiser Account ID."
+              },
+              {
+                "type": "TEXT",
+                "name": "gdprConsent",
+                "displayName": "GDPR TCF v2 consent string",
+                "simpleValueType": true,
+                "help": "Optional.\n\u003cbr\u003e\u003cbr\u003e\nDefault: \u003ci\u003eeventData.x-sst-system_properties.gdpr_consent\u003c/i\u003e"
+              },
+              {
+                "type": "TEXT",
+                "name": "gdpr",
+                "displayName": "GDPR applies (0 or 1)",
+                "simpleValueType": true,
+                "help": "Optional.\n\u003cbr\u003e\u003cbr\u003e\nDefault: \u003ci\u003eeventData.x-sst-system_properties.gdpr\u003c/i\u003e"
+              },
+              {
+                "type": "TEXT",
+                "name": "gpp",
+                "displayName": "GPP string",
+                "simpleValueType": true,
+                "help": "Optional.\n\u003cbr\u003e\u003cbr\u003e\nDefault: \u003ci\u003eeventData.x-sst-system_properties.gpp\u003c/i\u003e"
+              },
+              {
+                "type": "TEXT",
+                "name": "gppSid",
+                "displayName": "GPP Section ID",
+                "simpleValueType": true,
+                "help": "Optional.\n\u003cbr\u003e\u003cbr\u003e\nDefault: \u003ci\u003eeventData.x-sst-system_properties.gpp_sid\u003c/i\u003e"
+              },
+              {
+                "type": "TEXT",
+                "name": "ccpa",
+                "displayName": "CCPA Privacy String",
+                "simpleValueType": true,
+                "help": "Optional.\u003cbr\u003e\u003cbr\u003e\nDefault: \u003ci\u003eeventData.x-sst-system_properties.us_privacy\u003c/i\u003e"
+              }
+            ],
+            "enablingConditions": [
+              {
+                "paramName": "sendEventFromBrowser",
+                "paramValue": false,
+                "type": "NOT_EQUALS"
+              }
+            ]
+          }
+        ]
       }
     ],
     "enablingConditions": [
@@ -137,6 +266,31 @@ ___TEMPLATE_PARAMETERS___
         "paramName": "type",
         "paramValue": "conversion",
         "type": "EQUALS"
+      }
+    ]
+  },
+  {
+    "type": "GROUP",
+    "name": "consentSettingsGroup",
+    "displayName": "Consent Settings",
+    "groupStyle": "ZIPPY_CLOSED",
+    "subParams": [
+      {
+        "type": "RADIO",
+        "name": "adStorageConsent",
+        "displayName": "",
+        "radioItems": [
+          {
+            "value": "optional",
+            "displayValue": "Send data always"
+          },
+          {
+            "value": "required",
+            "displayValue": "Send data in case marketing consent given"
+          }
+        ],
+        "simpleValueType": true,
+        "defaultValue": "optional"
       }
     ]
   },
@@ -174,37 +328,143 @@ ___TEMPLATE_PARAMETERS___
         "type": "EQUALS"
       }
     ]
+  },
+  {
+    "displayName": "BigQuery Logs Settings",
+    "name": "bigQueryLogsGroup",
+    "groupStyle": "ZIPPY_CLOSED",
+    "type": "GROUP",
+    "subParams": [
+      {
+        "type": "RADIO",
+        "name": "bigQueryLogType",
+        "radioItems": [
+          {
+            "value": "no",
+            "displayValue": "Do not log to BigQuery"
+          },
+          {
+            "value": "always",
+            "displayValue": "Log to BigQuery"
+          }
+        ],
+        "simpleValueType": true,
+        "defaultValue": "no"
+      },
+      {
+        "type": "GROUP",
+        "name": "logsBigQueryConfigGroup",
+        "groupStyle": "NO_ZIPPY",
+        "subParams": [
+          {
+            "type": "TEXT",
+            "name": "logBigQueryProjectId",
+            "displayName": "BigQuery Project ID",
+            "simpleValueType": true,
+            "help": "Optional.  \u003cbr\u003e\u003cbr\u003e  If omitted, it will be retrieved from the environment variable \u003cI\u003eGOOGLE_CLOUD_PROJECT\u003c/i\u003e where the server container is running. If the server container is running on Google Cloud, \u003cI\u003eGOOGLE_CLOUD_PROJECT\u003c/i\u003e will already be set to the Google Cloud project\u0027s ID."
+          },
+          {
+            "type": "TEXT",
+            "name": "logBigQueryDatasetId",
+            "displayName": "BigQuery Dataset ID",
+            "simpleValueType": true,
+            "valueValidators": [
+              {
+                "type": "NON_EMPTY"
+              }
+            ]
+          },
+          {
+            "type": "TEXT",
+            "name": "logBigQueryTableId",
+            "displayName": "BigQuery Table ID",
+            "simpleValueType": true,
+            "valueValidators": [
+              {
+                "type": "NON_EMPTY"
+              }
+            ]
+          }
+        ],
+        "enablingConditions": [
+          {
+            "paramName": "bigQueryLogType",
+            "paramValue": "always",
+            "type": "EQUALS"
+          }
+        ]
+      }
+    ],
+    "enablingConditions": [
+      {
+        "paramName": "type",
+        "paramValue": "conversion",
+        "type": "EQUALS"
+      }
+    ]
   }
 ]
 
 
 ___SANDBOXED_JS_FOR_SERVER___
 
+const BigQuery = require('BigQuery');
+const encodeUriComponent = require('encodeUriComponent');
+const generateRandom = require('generateRandom');
+const getAllEventData = require('getAllEventData');
+const getCookieValues = require('getCookieValues');
+const getContainerVersion = require('getContainerVersion');
+const getRequestHeader = require('getRequestHeader');
+const getType = require('getType');
+const getTimestampMillis = require('getTimestampMillis');
+const JSON = require('JSON');
+const logToConsole = require('logToConsole');
+const makeString = require('makeString');
+const parseUrl = require('parseUrl');
+const sendPixelFromBrowser = require('sendPixelFromBrowser');
 const sendHttpRequest = require('sendHttpRequest');
 const setCookie = require('setCookie');
-const parseUrl = require('parseUrl');
-const JSON = require('JSON');
-const getRequestHeader = require('getRequestHeader');
-const encodeUriComponent = require('encodeUriComponent');
-const getCookieValues = require('getCookieValues');
-const getEventData = require('getEventData');
 
-const logToConsole = require('logToConsole');
-const getContainerVersion = require('getContainerVersion');
-const containerVersion = getContainerVersion();
-const isDebug = containerVersion.debugMode;
-const isLoggingEnabled = determinateIsLoggingEnabled();
+/*==============================================================================
+==============================================================================*/
+
 const traceId = getRequestHeader('trace-id');
+const eventData = getAllEventData();
 
-if (data.type === 'page_view') {
-  const url = getEventData('page_location') || getRequestHeader('referer');
+if (!isConsentGivenOrNotRequired()) {
+  return data.gtmOnSuccess();
+}
+
+const url = eventData.page_location || getRequestHeader('referer');
+if (url && url.lastIndexOf('https://gtm-msr.appspot.com/', 0) === 0) {
+  return data.gtmOnSuccess();
+}
+
+const actionHandlers = {
+  page_view: handlePageViewEvent,
+  conversion: handleConversionEvent
+};
+
+const handler = actionHandlers[data.type];
+if (handler) {
+  handler(data, eventData);
+} else {
+  return data.gtmOnFailure();
+}
+
+/*==============================================================================
+  Vendor related functions
+==============================================================================*/
+
+function handlePageViewEvent(data, eventData) {
+  const url = eventData.page_location || getRequestHeader('referer');
 
   if (url) {
     const value = parseUrl(url).searchParams[data.clickIdParameterName];
 
     if (value) {
       const options = {
-        domain: 'auto',
+        domain: data.cookieDomain || 'auto',
         path: '/',
         secure: true,
         httpOnly: false
@@ -216,18 +476,59 @@ if (data.type === 'page_view') {
     }
   }
 
-  data.gtmOnSuccess();
-} else {
-  const commonCookie = getEventData('common_cookie') || {};
-  const clickId = data.clickId || getCookieValues('taboola_cid')[0] || commonCookie.taboola_cid || '';
+  return data.gtmOnSuccess();
+}
 
-  if (!clickId) {
-    data.gtmOnSuccess();
+function handleConversionEvent(data, eventData) {
+  const commonCookie = eventData.common_cookie || {};
+  const clickId =
+    data.clickId || getCookieValues('taboola_cid')[0] || commonCookie.taboola_cid || '';
 
-    return;
+  const eventId = getEventId(data, eventData);
+
+  if (
+    isUIFieldTrue(data.sendEventFromBrowser) &&
+    data.accountId /* Backward compatibility check */
+  ) {
+    let unipPixelUrl =
+      'https://trc.taboola.com/' +
+      data.accountId +
+      '/log/3/unip?it=sGTM' +
+      '&en=' +
+      enc(data.eventName) +
+      '&tim=' +
+      enc(getTimestampMillis());
+
+    if (clickId) unipPixelUrl += '&tblci=' + enc(clickId);
+    if (eventId) unipPixelUrl += '&event_id=' + enc(eventId);
+
+    const sstSystemProperties = eventData['x-sst-system_properties'] || {};
+
+    const gdprConsent = data.hasOwnProperty('gdprConsent')
+      ? data.gdprConsent
+      : sstSystemProperties.gdpr_consent;
+    if (gdprConsent) unipPixelUrl += '&gdpr_consent=' + enc(gdprConsent);
+
+    const gdpr = data.hasOwnProperty('gdpr') ? data.gdpr : sstSystemProperties.gdpr;
+    if (isValidValue(gdpr)) unipPixelUrl += '&gdpr=' + enc(gdpr);
+
+    const gpp = data.hasOwnProperty('gpp') ? data.gpp : sstSystemProperties.gpp;
+    if (gpp) unipPixelUrl += '&gpp=' + enc(gpp);
+
+    const gppSid = data.hasOwnProperty('gppSid') ? data.gppSid : sstSystemProperties.gpp_sid;
+    if (gppSid) unipPixelUrl += '&gpp_sid=' + enc(gppSid);
+
+    const ccpa = data.hasOwnProperty('ccpa') ? data.ccpa : sstSystemProperties.us_privacy;
+    if (ccpa) unipPixelUrl += '&ccpa_ps=' + enc(ccpa);
+
+    sendPixelFromBrowser(unipPixelUrl);
   }
 
-  let requestUrl =
+  if (!clickId) {
+    return data.gtmOnSuccess();
+  }
+
+  const requestUrl =
     'https://trc.taboola.com/actions-handler/log/3/s2s-action?name=' +
     enc(data.eventName) +
     '&click-id=' +
@@ -237,37 +538,30 @@ if (data.type === 'page_view') {
     '&currency=' +
     enc(data.currencyCode) +
     '&orderid=' +
-    enc(data.orderId);
+    enc(data.orderId) +
+    (eventId ? '&event_id=' + enc(eventId) : '');
 
-  if (isLoggingEnabled) {
-    logToConsole(
-      JSON.stringify({
-        Name: 'Taboola',
-        Type: 'Request',
-        TraceId: traceId,
-        EventName: data.eventName,
-        RequestMethod: 'POST',
-        RequestUrl: requestUrl
-      })
-    );
-  }
+  log({
+    Name: 'Taboola',
+    Type: 'Request',
+    TraceId: traceId,
+    EventName: data.eventName,
+    RequestMethod: 'POST',
+    RequestUrl: requestUrl
+  });
 
   sendHttpRequest(
     requestUrl,
     (statusCode, headers, body) => {
-      if (isLoggingEnabled) {
-        logToConsole(
-          JSON.stringify({
-            Name: 'Taboola',
-            Type: 'Response',
-            TraceId: traceId,
-            EventName: data.eventName,
-            ResponseStatusCode: statusCode,
-            ResponseHeaders: headers,
-            ResponseBody: body
-          })
-        );
-      }
+      log({
+        Name: 'Taboola',
+        Type: 'Response',
+        TraceId: traceId,
+        EventName: data.eventName,
+        ResponseStatusCode: statusCode,
+        ResponseHeaders: headers,
+        ResponseBody: body
+      });
 
       if (statusCode >= 200 && statusCode < 300) {
         data.gtmOnSuccess();
@@ -275,16 +569,129 @@ if (data.type === 'page_view') {
         data.gtmOnFailure();
       }
     },
-    { method: 'POST' }
+    {
+      headers: generateRequestHeaders(data, eventData),
+      method: 'POST'
+    }
   );
 }
 
+function generateRequestHeaders(data, eventData) {
+  const requestHeaders = {};
+  if (
+    data.hasOwnProperty('redactIpAddress') /* Backward compatibility check */ &&
+    !isUIFieldTrue(data.redactIpAddress) &&
+    eventData.ip_override
+  ) {
+    requestHeaders['X-Forwarded-For'] = eventData.ip_override;
+  }
+  return requestHeaders;
+}
+
+/*==============================================================================
+  Helpers
+==============================================================================*/
+
+function getEventId(data, eventData) {
+  return (
+    data.eventId ||
+    eventData.eventId ||
+    eventData.event_id ||
+    eventData.unique_event_id ||
+    eventData.transaction_id ||
+    getTimestampMillis() + '_' + generateRandom(100000000, 999999999)
+  );
+}
+
+function isUIFieldTrue(field) {
+  return [true, 'true'].indexOf(field) !== -1;
+}
+
+function isValidValue(value) {
+  const valueType = getType(value);
+  return valueType !== 'null' && valueType !== 'undefined' && value !== '';
+}
+
 function enc(data) {
-  data = data || '';
-  return encodeUriComponent(data);
+  if (data === undefined || data === null) data = '';
+  return encodeUriComponent(makeString(data));
+}
+
+function isConsentGivenOrNotRequired() {
+  if (data.adStorageConsent !== 'required') return true;
+  if (eventData.consent_state) return !!eventData.consent_state.ad_storage;
+  const xGaGcs = eventData['x-ga-gcs'] || ''; // x-ga-gcs is a string like "G110"
+  return xGaGcs[2] === '1';
+}
+
+function log(rawDataToLog) {
+  const logDestinationsHandlers = {};
+  if (determinateIsLoggingEnabled()) logDestinationsHandlers.console = logConsole;
+  if (determinateIsLoggingEnabledForBigQuery()) logDestinationsHandlers.bigQuery = logToBigQuery;
+
+  const keyMappings = {
+    // No transformation for Console is needed.
+    bigQuery: {
+      Name: 'tag_name',
+      Type: 'type',
+      TraceId: 'trace_id',
+      EventName: 'event_name',
+      RequestMethod: 'request_method',
+      RequestUrl: 'request_url',
+      RequestBody: 'request_body',
+      ResponseStatusCode: 'response_status_code',
+      ResponseHeaders: 'response_headers',
+      ResponseBody: 'response_body'
+    }
+  };
+
+  for (const logDestination in logDestinationsHandlers) {
+    const handler = logDestinationsHandlers[logDestination];
+    if (!handler) continue;
+
+    const mapping = keyMappings[logDestination];
+    const dataToLog = mapping ? {} : rawDataToLog;
+
+    if (mapping) {
+      for (const key in rawDataToLog) {
+        const mappedKey = mapping[key] || key;
+        dataToLog[mappedKey] = rawDataToLog[key];
+      }
+    }
+
+    handler(dataToLog);
+  }
+}
+
+function logConsole(dataToLog) {
+  logToConsole(JSON.stringify(dataToLog));
+}
+
+function logToBigQuery(dataToLog) {
+  const connectionInfo = {
+    projectId: data.logBigQueryProjectId,
+    datasetId: data.logBigQueryDatasetId,
+    tableId: data.logBigQueryTableId
+  };
+
+  dataToLog.timestamp = getTimestampMillis();
+
+  ['request_body', 'response_headers', 'response_body'].forEach((p) => {
+    dataToLog[p] = JSON.stringify(dataToLog[p]);
+  });
+
+  const bigquery =
+    getType(BigQuery) === 'function' ? BigQuery() /* Only during Unit Tests */ : BigQuery;
+  bigquery.insert(connectionInfo, [dataToLog], { ignoreUnknownValues: true });
 }
 
 function determinateIsLoggingEnabled() {
+  const containerVersion = getContainerVersion();
+  const isDebug = !!(
+    containerVersion &&
+    (containerVersion.debugMode || containerVersion.previewMode)
+  );
+
   if (!data.logType) {
     return isDebug;
   }
@@ -300,6 +707,11 @@ function determinateIsLoggingEnabled() {
   return data.logType === 'always';
 }
 
+function determinateIsLoggingEnabledForBigQuery() {
+  if (data.bigQueryLogType === 'no') return false;
+  return data.bigQueryLogType === 'always';
+}
+
 
 ___SERVER_PERMISSIONS___
 
@@ -312,26 +724,10 @@ ___SERVER_PERMISSIONS___
       },
       "param": [
         {
-          "key": "keyPatterns",
-          "value": {
-            "type": 2,
-            "listItem": [
-              {
-                "type": 1,
-                "string": "page_location"
-              },
-              {
-                "type": 1,
-                "string": "common_cookie"
-              }
-            ]
-          }
-        },
-        {
           "key": "eventDataAccess",
           "value": {
             "type": 1,
-            "string": "specific"
+            "string": "any"
           }
         }
       ]
@@ -586,13 +982,504 @@ ___SERVER_PERMISSIONS___
       "param": []
     },
     "isRequired": true
+  },
+  {
+    "instance": {
+      "key": {
+        "publicId": "send_pixel_from_browser",
+        "versionId": "1"
+      },
+      "param": [
+        {
+          "key": "allowedUrls",
+          "value": {
+            "type": 1,
+            "string": "specific"
+          }
+        },
+        {
+          "key": "urls",
+          "value": {
+            "type": 2,
+            "listItem": [
+              {
+                "type": 1,
+                "string": "https://trc.taboola.com/*"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "clientAnnotations": {
+      "isEditedByUser": true
+    },
+    "isRequired": true
+  },
+  {
+    "instance": {
+      "key": {
+        "publicId": "access_bigquery",
+        "versionId": "1"
+      },
+      "param": [
+        {
+          "key": "allowedTables",
+          "value": {
+            "type": 2,
+            "listItem": [
+              {
+                "type": 3,
+                "mapKey": [
+                  {
+                    "type": 1,
+                    "string": "projectId"
+                  },
+                  {
+                    "type": 1,
+                    "string": "datasetId"
+                  },
+                  {
+                    "type": 1,
+                    "string": "tableId"
+                  },
+                  {
+                    "type": 1,
+                    "string": "operation"
+                  }
+                ],
+                "mapValue": [
+                  {
+                    "type": 1,
+                    "string": "*"
+                  },
+                  {
+                    "type": 1,
+                    "string": "*"
+                  },
+                  {
+                    "type": 1,
+                    "string": "*"
+                  },
+                  {
+                    "type": 1,
+                    "string": "write"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "clientAnnotations": {
+      "isEditedByUser": true
+    },
+    "isRequired": true
   }
 ]
 
 
 ___TESTS___
 
-scenarios: []
+scenarios:
+- name: PageView - Click ID cookie is NOT set if URL doesn't contain the Click ID
+    parameter
+  code: |
+    setAllMockDataByEventType('page_view');
+
+    mock('getAllEventData', {
+      page_location: 'https://example.com/'
+    });
+
+    runCode(mockData);
+
+    assertApi('gtmOnSuccess').wasCalled();
+    assertApi('gtmOnFailure').wasNotCalled();
+    assertApi('setCookie').wasNotCalled();
+- name: PageView - Click ID cookie is set if URL contains it
+  code: |
+    setAllMockDataByEventType('page_view');
+
+    const expectedClickId = 'expectedClickId';
+    mock('getAllEventData', {
+      page_location: 'https://example.com/?utm_source=test&tbclid=' + expectedClickId
+    });
+
+    runCode(mockData);
+
+    assertApi('gtmOnSuccess').wasCalled();
+    assertApi('gtmOnFailure').wasNotCalled();
+    assertApi('setCookie').wasCalledWith('taboola_cid', expectedClickId, {
+      domain: 'auto',
+      path: '/',
+      secure: true,
+      httpOnly: false
+    }, false);
+- name: PageView - Cookies settings are overriden when setting the Click IDs
+  code: |-
+    const expectedCookieDomain = 'example.com';
+    const expectedCookieExpiration = 90;
+    const expectedCookieHttpOnly = true;
+    setAllMockDataByEventType('page_view', {
+      cookieDomain: expectedCookieDomain,
+      expiration: expectedCookieExpiration,
+    });
+
+    const expectedClickId = 'expectedClickId';
+    mock('getAllEventData', {
+      page_location: 'https://example.com/?utm_source=test&tbclid=' + expectedClickId
+    });
+
+    runCode(mockData);
+
+    assertApi('gtmOnSuccess').wasCalled();
+    assertApi('gtmOnFailure').wasNotCalled();
+    assertApi('setCookie').wasCalledWith('taboola_cid', expectedClickId, {
+      domain: expectedCookieDomain,
+      path: '/',
+      secure: true,
+      httpOnly: false,
+      'max-age': expectedCookieExpiration
+    }, false);
+- name: Conversion - Redact IP Address is undefined (user did NOT update the tag,
+    only the template)
+  code: |-
+    setAllMockDataByEventType('conversion');
+
+    Object.delete(mockData, 'redactIpAddress');
+
+    mock('getAllEventData', {
+      ip_override: '192.168.0.1'
+    });
+
+    mock('sendHttpRequest', (requestUrl, callback, requestOptions, requestBody) => {
+      assertThat(requestOptions.headers['X-Forwarded-For']).isUndefined();
+      callback(200);
+    });
+
+    runCode(mockData);
+
+    assertApi('gtmOnSuccess').wasCalled();
+    assertApi('gtmOnFailure').wasNotCalled();
+- name: Conversion - Redact IP Address === true
+  code: |-
+    setAllMockDataByEventType('conversion', {
+      redactIpAddress: true
+    });
+
+    mock('getAllEventData', {
+      ip_override: '192.168.0.1'
+    });
+
+    mock('sendHttpRequest', (requestUrl, callback, requestOptions, requestBody) => {
+      assertThat(requestOptions.headers['X-Forwarded-For']).isUndefined();
+      callback(200);
+    });
+
+    runCode(mockData);
+
+    assertApi('gtmOnSuccess').wasCalled();
+    assertApi('gtmOnFailure').wasNotCalled();
+- name: Conversion - Redact IP Address === false
+  code: |-
+    setAllMockDataByEventType('conversion', {
+      redactIpAddress: false
+    });
+
+    mock('getAllEventData', {
+      ip_override: '192.168.0.1'
+    });
+
+    mock('sendHttpRequest', (requestUrl, callback, requestOptions, requestBody) => {
+      assertThat(requestOptions.headers['X-Forwarded-For']).isEqualTo('192.168.0.1');
+      callback(200);
+    });
+
+    runCode(mockData);
+
+    assertApi('gtmOnSuccess').wasCalled();
+    assertApi('gtmOnFailure').wasNotCalled();
+- name: Conversion - Server Event Request is NOT sent if Click ID is missing
+  code: "setAllMockDataByEventType('conversion', {\n  clickId: undefined\n});\n\n\
+    mock('sendHttpRequest', function() {\n  fail('Required parameter is missing. Request\
+    \ should not have been sent.');\n});\n\nrunCode(mockData);\n  \nassertApi('gtmOnFailure').wasNotCalled();\n\
+    assertApi('gtmOnSuccess').wasCalled();"
+- name: Conversion - Server Event Request is sent - Data from UI fields
+  code: "setAllMockDataByEventType('conversion');\n\nconst expectedRequestBaseUrl\
+    \ = 'https://trc.taboola.com/actions-handler/log/3/s2s-action';\nconst expectedRequestOptions\
+    \ = { method: 'POST', headers: {} };\nconst expectedQueryParameters = {\n  name:\
+    \ 'eventName',\n  orderid: 'orderId',\n  revenue: 'revenue',\n  currency: 'currencyCode',\n\
+    \  'click-id': 'clickId',\n  event_id: 'eventId'\n};\n\nmock('sendHttpRequest',\
+    \ (requestUrl, callback, requestOptions) => {\n  const parsedRequestUrl = parseUrl(requestUrl);\n\
+    \  assertThat(parsedRequestUrl.origin + parsedRequestUrl.pathname).isEqualTo(expectedRequestBaseUrl);\n\
+    \  assertThat(parsedRequestUrl.searchParams).isEqualTo(expectedQueryParameters);\n\
+    \  assertThat(callback).isFunction();\n  assertThat(requestOptions).isEqualTo(expectedRequestOptions);\n\
+    \  \n  callback(200);\n});\n\nrunCode(mockData);\n\nassertApi('gtmOnSuccess').wasCalled();\n\
+    assertApi('gtmOnFailure').wasNotCalled();"
+- name: Conversion - Server Event Request is sent - Click ID from cookie
+  code: "setAllMockDataByEventType('conversion', {\n  clickId: undefined\n});\n\n\
+    const expectedRequestBaseUrl = 'https://trc.taboola.com/actions-handler/log/3/s2s-action';\n\
+    const expectedRequestOptions = { method: 'POST', headers: {} };\nconst expectedQueryParameters\
+    \ = {\n  name: 'eventName',\n  orderid: 'orderId',\n  revenue: 'revenue',\n  currency:\
+    \ 'currencyCode',\n  'click-id': 'clickIdFromCookie',\n  event_id: 'eventId'\n\
+    };\n\nmock('getCookieValues', ['clickIdFromCookie']);\n\nmock('sendHttpRequest',\
+    \ (requestUrl, callback, requestOptions) => {\n  const parsedRequestUrl = parseUrl(requestUrl);\n\
+    \  assertThat(parsedRequestUrl.origin + parsedRequestUrl.pathname).isEqualTo(expectedRequestBaseUrl);\n\
+    \  assertThat(parsedRequestUrl.searchParams).isEqualTo(expectedQueryParameters);\n\
+    \  assertThat(callback).isFunction();\n  assertThat(requestOptions).isEqualTo(expectedRequestOptions);\n\
+    \  \n  callback(200);\n});\n\nrunCode(mockData);\n\nassertApi('gtmOnSuccess').wasCalled();\n\
+    assertApi('gtmOnFailure').wasNotCalled();"
+- name: Conversion - Server Event Request is sent - Click ID from Common Cookie
+  code: "setAllMockDataByEventType('conversion', {\n  clickId: undefined\n});\n\n\
+    const expectedRequestBaseUrl = 'https://trc.taboola.com/actions-handler/log/3/s2s-action';\n\
+    const expectedRequestOptions = { method: 'POST', headers: {} };\nconst expectedQueryParameters\
+    \ = {\n  name: 'eventName',\n  orderid: 'orderId',\n  revenue: 'revenue',\n  currency:\
+    \ 'currencyCode',\n  'click-id': 'clickIdFromCommonCookie',\n  event_id: 'eventId'\n\
+    };\n\nmock('getAllEvenData', {\n  commonCookie: { taboola_cid: 'clickIdFromCommonCookie'\
+    \ }\n});\n\nmock('sendHttpRequest', (requestUrl, callback, requestOptions) =>\
+    \ {\n  const parsedRequestUrl = parseUrl(requestUrl);\n  assertThat(parsedRequestUrl.origin\
+    \ + parsedRequestUrl.pathname).isEqualTo(expectedRequestBaseUrl);\n  assertThat(parsedRequestUrl.searchParams).isEqualTo(expectedQueryParameters);\n\
+    \  assertThat(callback).isFunction();\n  assertThat(requestOptions).isEqualTo(expectedRequestOptions);\n\
+    \  \n  callback(200);\n});\n\nrunCode(mockData);\n\nassertApi('gtmOnSuccess').wasCalled();\n\
+    assertApi('gtmOnFailure').wasNotCalled();"
+- name: Conversion - Send Event From Browser is undefined (user did NOT update the
+    tag, only the template)
+  code: |-
+    setAllMockDataByEventType('conversion');
+
+    Object.delete(mockData, 'sendEventFromBrowser');
+    Object.delete(mockData, 'accountId');
+
+    runCode(mockData);
+
+    assertApi('gtmOnSuccess').wasCalled();
+    assertApi('gtmOnFailure').wasNotCalled();
+    assertApi('sendPixelFromBrowser').wasNotCalled();
+- name: Conversion - Send Event From Browser is false
+  code: |-
+    setAllMockDataByEventType('conversion', {
+      sendEventFromBrowser: false
+    });
+
+    runCode(mockData);
+
+    assertApi('gtmOnSuccess').wasCalled();
+    assertApi('gtmOnFailure').wasNotCalled();
+    assertApi('sendPixelFromBrowser').wasNotCalled();
+- name: Conversion - Send Event From Browser is true - Data from UI fields
+  code: |-
+    setAllMockDataByEventType('conversion', {
+      sendEventFromBrowser: true,
+      accountId: 'accountId',
+      gdprConsent: 'gdprConsent',
+      gdpr: 'gdpr',
+      gpp: 'gpp',
+      gppSid: 'gppSid',
+      ccpa: 'ccpa'
+    });
+
+    const expectedRequestBaseUrl = 'https://trc.taboola.com/accountId/log/3/unip';
+    const expectedQueryParameters = {
+      it: 'sGTM',
+      en: 'eventName',
+      tim: '1747945830456',
+      tblci: 'clickId',
+      event_id: 'eventId',
+      gdpr_consent: 'gdprConsent',
+      gdpr: 'gdpr',
+      gpp: 'gpp',
+      gpp_sid: 'gppSid',
+      ccpa_ps: 'ccpa'
+    };
+
+    mock('sendPixelFromBrowser', (requestUrl) => {
+      const parsedRequestUrl = parseUrl(requestUrl);
+      assertThat(parsedRequestUrl.origin + parsedRequestUrl.pathname).isEqualTo(expectedRequestBaseUrl);
+      assertThat(parsedRequestUrl.searchParams).isEqualTo(expectedQueryParameters);
+    });
+
+    runCode(mockData);
+
+    assertApi('gtmOnSuccess').wasCalled();
+    assertApi('gtmOnFailure').wasNotCalled();
+- name: Conversion - Send Event From Browser is true - Data from Event Data fallbacks
+  code: |-
+    setAllMockDataByEventType('conversion', {
+      sendEventFromBrowser: true,
+      accountId: 'accountId'
+    });
+
+    ['gdprConsent', 'gdpr', 'gpp', 'gppSid', 'ccpa'].forEach(p => Object.delete(mockData, p));
+
+    setGetAllEventData();
+
+    const expectedRequestBaseUrl = 'https://trc.taboola.com/accountId/log/3/unip';
+    const expectedQueryParameters = {
+      it: 'sGTM',
+      en: 'eventName',
+      tim: '1747945830456',
+      tblci: 'clickId',
+      event_id: 'eventId',
+      gdpr_consent: 'gdpr_consent',
+      gdpr: '1',
+      gpp: 'gpp',
+      gpp_sid: 'gpp_sid',
+      ccpa_ps: '1YNN'
+    };
+
+    mock('sendPixelFromBrowser', (requestUrl) => {
+      const parsedRequestUrl = parseUrl(requestUrl);
+      assertThat(parsedRequestUrl.origin + parsedRequestUrl.pathname).isEqualTo(expectedRequestBaseUrl);
+      assertThat(parsedRequestUrl.searchParams).isEqualTo(expectedQueryParameters);
+    });
+
+    runCode(mockData);
+
+    assertApi('gtmOnSuccess').wasCalled();
+    assertApi('gtmOnFailure').wasNotCalled();
+- name: Conversion - Event From Browser is sent even if the Click ID is missing
+  code: |-
+    setAllMockDataByEventType('conversion', {
+      clickId: undefined,
+      sendEventFromBrowser: true,
+      accountId: 'accountId'
+    });
+
+    const expectedRequestBaseUrl = 'https://trc.taboola.com/accountId/log/3/unip';
+
+    mock('sendPixelFromBrowser', (requestUrl) => {
+      const parsedRequestUrl = parseUrl(requestUrl);
+      assertThat(parsedRequestUrl.origin + parsedRequestUrl.pathname).isEqualTo(expectedRequestBaseUrl);
+    });
+
+    runCode(mockData);
+
+    assertApi('gtmOnSuccess').wasCalled();
+    assertApi('gtmOnFailure').wasNotCalled();
+- name: Should log to console, if the 'Always log to console' option is selected
+  code: "setAllMockDataByEventType('conversion', {\n  logType: 'always'\n});\n\nconst\
+    \ expectedDebugMode = true;\nmock('getContainerVersion', () => {\n  return {\n\
+    \    debugMode: expectedDebugMode\n  };\n}); \n\nmock('logToConsole', (logData)\
+    \ => {\n  const parsedLogData = JSON.parse(logData);\n  requiredConsoleKeys.forEach(p\
+    \ => assertThat(parsedLogData[p]).isDefined());\n});\n\nmock('sendHttpRequest',\
+    \ (requestUrl, callback, requestOptions) => {\n  callback(200);\n});\n\nrunCode(mockData);\n\
+    \nassertApi('logToConsole').wasCalled();\nassertApi('gtmOnSuccess').wasCalled();\n\
+    assertApi('gtmOnFailure').wasNotCalled();"
+- name: Should log to console, if the 'Log during debug and preview' option is selected
+    AND is on preview mode
+  code: |-
+    setAllMockDataByEventType('conversion', {
+      logType: 'debug'
+    });
+
+    const expectedDebugMode = true;
+    mock('getContainerVersion', () => {
+      return {
+        debugMode: expectedDebugMode
+      };
+    });
+
+    mock('logToConsole', (logData) => {
+      const parsedLogData = JSON.parse(logData);
+      requiredConsoleKeys.forEach(p => assertThat(parsedLogData[p]).isDefined());
+    });
+
+    mock('sendHttpRequest', (requestUrl, callback, requestOptions, requestBody) => {
+      callback(200);
+    });
+
+    runCode(mockData);
+
+    assertApi('logToConsole').wasCalled();
+    assertApi('gtmOnSuccess').wasCalled();
+    assertApi('gtmOnFailure').wasNotCalled();
+- name: Should NOT log to console, if the 'Log during debug and preview' option is
+    selected AND is NOT on preview mode
+  code: "setAllMockDataByEventType('conversion', {\n  logType: 'debug'\n});\n\nconst\
+    \ expectedDebugMode = false;\nmock('getContainerVersion', () => {\n  return {\n\
+    \    debugMode: expectedDebugMode\n  };\n}); \n\nmock('sendHttpRequest', (requestUrl,\
+    \ callback, requestOptions, requestBody) => {\n  callback(200);\n});\n\nrunCode(mockData);\n\
+    \nassertApi('logToConsole').wasNotCalled();\nassertApi('gtmOnSuccess').wasCalled();\n\
+    assertApi('gtmOnFailure').wasNotCalled();"
+- name: Should NOT log to console, if the 'Do not log' option is selected
+  code: |-
+    setAllMockDataByEventType('conversion', {
+      logType: 'no'
+    });
+
+    runCode(mockData);
+
+    assertApi('logToConsole').wasNotCalled();
+    assertApi('gtmOnSuccess').wasCalled();
+    assertApi('gtmOnFailure').wasNotCalled();
+- name: Should log to BQ, if the 'Log to BigQuery' option is selected
+  code: "setAllMockDataByEventType('conversion', {\n  bigQueryLogType: 'always'\n\
+    });\n\n// assertApi doesn't work for 'BigQuery.insert()'.\n// Ref: https://gtm-gear.com/posts/gtm-templates-testing/\n\
+    mock('BigQuery', () => {\n  return { \n    insert: (connectionInfo, rows, options)\
+    \ => { \n      assertThat(connectionInfo).isDefined();\n      assertThat(rows).isArray();\n\
+    \      assertThat(rows).hasLength(1);\n      requiredBqKeys.forEach(p => assertThat(rows[0][p]).isDefined());\n\
+    \      assertThat(options).isEqualTo(expectedBqOptions);\n      return Promise.create((resolve,\
+    \ reject) => {\n        resolve();\n      });\n    }\n  };\n});\n\nrunCode(mockData);\n\
+    \nassertApi('gtmOnSuccess').wasCalled();\nassertApi('gtmOnFailure').wasNotCalled();"
+- name: Should NOT log to BQ, if the 'Do not log to BigQuery' option is selected
+  code: "setAllMockDataByEventType('conversion', {\n  bigQueryLogType: 'no'\n});\n\
+    \n// assertApi doesn't work for 'BigQuery.insert()'.\n// Ref: https://gtm-gear.com/posts/gtm-templates-testing/\n\
+    mock('BigQuery', () => {\n  return { \n    insert: (connectionInfo, rows, options)\
+    \ => { \n      fail('BigQuery.insert should not have been called.');\n      return\
+    \ Promise.create((resolve, reject) => {\n        resolve();\n      });\n    }\n\
+    \  };\n});\n\nrunCode(mockData);\n\nassertApi('gtmOnSuccess').wasCalled();\nassertApi('gtmOnFailure').wasNotCalled();"
+setup: "const JSON = require('JSON');\nconst Promise = require('Promise');\nconst\
+  \ parseUrl = require('parseUrl');\nconst Object = require('Object');\n\nfunction\
+  \ mergeObj(target, source) {\n  for (const key in source) {\n    if (source.hasOwnProperty(key))\
+  \ target[key] = source[key];\n  }\n  return target;\n}\n\nconst setGetAllEventData\
+  \ = (objToBeMerged) => {\n  mock('getAllEventData', mergeObj({\n    'x-ga-protocol_version':\
+  \ '2',\n    'x-ga-measurement_id': 'G-123ABC',\n    'x-ga-gtm_version': '45je55e1za200',\n\
+  \    'x-ga-page_id': 1747422523211,\n    'x-ga-gcd': '13l3l3l3l1l1',\n    'x-ga-npa':\
+  \ '0',\n    'x-ga-dma': '0',\n    'x-ga-mp2-tag_exp':\n      '101509157~103116025~103130498~103130500~103136993~103136995~103200001~103207802~103211513~103233427~103252644~103252646~103263073~103301114~103301116',\n\
+  \    client_id: 'AUJctU7H7hBB/aMuhE4pKwGu5DWDdklg5abyyyn8i/I=.1747154479',\n   \
+  \ 'x-ga-ecid': '1294673677',\n    language: 'en-us',\n    screen_resolution: '1512x982',\n\
+  \    event_location: { country: 'BR', region: 'SP' },\n    event_id: '101509157~103116025~103130498',\n\
+  \    timestamp: 1748377016,\n    client_hints: {\n      architecture: 'arm',\n \
+  \     bitness: '64',\n      full_version_list: [\n        { brand: 'Chromium', version:\
+  \ '136.0.7103.93' },\n        { brand: 'Google Chrome', version: '136.0.7103.93'\
+  \ },\n        { brand: 'Not.A/Brand', version: '99.0.0.0' }\n      ],\n      mobile:\
+  \ false,\n      model: '',\n      platform: 'macOS',\n      platform_version: '15.2.0',\n\
+  \      wow64: false,\n      brands: [\n        { brand: 'Chromium', version: '136'\
+  \ },\n        { brand: 'Google Chrome', version: '136' },\n        { brand: 'Not.A/Brand',\
+  \ version: '99' }\n      ]\n    },\n    'x-ga-are': '1',\n    'x-ga-mp2-frm': '0',\n\
+  \    'x-ga-pscdl': 'noapi',\n    'x-ga-system_properties': { eu: [34], tu: 'BA',\
+  \ ss: '1', ee: true },\n    'x-sst-system_properties': {\n      etld: \"google.com.br\"\
+  ,\n      us_privacy: \"1YNN\",\n      gdpr: \"1\",\n      gdpr_consent: \"gdpr_consent\"\
+  ,\n      gpp: \"gpp\",\n      gpp_sid: \"gpp_sid\",\n      tft: \"1750441282186\"\
+  ,\n      lpc: \"9012215\",\n      navt: \"r\",\n      ude: \"0\",\n      sw_exp:\
+  \ \"1\",\n      request_start_time_ms: 1750441458826\n    },\n    'x-ga-request_count':\
+  \ 1,\n    ga_session_id: '1747422523',\n    ga_session_number: 3,\n    'x-ga-mp2-seg':\
+  \ '0',\n    page_location: 'https://example.com/?test=1i23i21j3',\n    page_title:\
+  \ 'Example Domain',\n    event_name: 'page_view',\n    'x-ga-tfd': 5784,\n    ip_override:\
+  \ '2804:14d:c096:8dd6:311c:8c00:e6c:e33',\n    user_agent:\n      'Mozilla/5.0 (Macintosh;\
+  \ Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0\
+  \ Safari/537.36',\n    value: 123.45,\n    currency: 'BRL',\n    user_id: 'userId',\n\
+  \    user_data: {\n      email: { 0: 'userEmail', 1: 'test2@example.net' },\n  \
+  \    phone_number: '+55 (19) 99999-9999'\n    },\n    coupon: 'coupon'\n  }, objToBeMerged\
+  \ || {}));\n};\n\nconst expectedBigQuerySettings = {\n  logBigQueryProjectId: 'logBigQueryProjectId',\n\
+  \  logBigQueryDatasetId: 'logBigQueryDatasetId',\n  logBigQueryTableId: 'logBigQueryTableId'\n\
+  };\n\nconst requiredConsoleKeys = ['Type', 'TraceId', 'Name'];\nconst requiredBqKeys\
+  \ = ['timestamp', 'type', 'trace_id', 'tag_name'];\nconst expectedBqOptions = {\
+  \ ignoreUnknownValues: true };\n\nconst mockData = {\n  logBigQueryProjectId: expectedBigQuerySettings.logBigQueryProjectId,\n\
+  \  logBigQueryDatasetId: expectedBigQuerySettings.logBigQueryDatasetId,\n  logBigQueryTableId:\
+  \ expectedBigQuerySettings.logBigQueryTableId\n};\n\nconst setAllMockDataByEventType\
+  \ = (type, objToBeMerged) => {\n  const mockDataByEventType = {\n    page_view:\
+  \ {\n      type: 'page_view',\n      clickIdParameterName: 'tbclid',\n      cookieDomain:\
+  \ 'auto',\n      expiration: 0,\n    },\n    conversion: {\n      type: 'conversion',\n\
+  \      redactIpAddress: false,\n      eventName: 'eventName',\n      orderId: 'orderId',\n\
+  \      revenue: 'revenue',\n      currencyCode: 'currencyCode',\n      programId:\
+  \ 'programId',\n      clickId: 'clickId',\n      eventId: 'eventId',\n      sendEventFromBrowser:\
+  \ false\n    }\n  };\n  \n  mergeObj(mockDataByEventType[type], objToBeMerged ||\
+  \ {});\n  mergeObj(mockData, mockDataByEventType[type]);\n};\n\nmock('sendHttpRequest',\
+  \ (requestUrl, callback, requestOptions, requestBody) => {\n  callback(200);\n});\n\
+  \nmock('getRequestHeader', (header) => {\n  if (header === 'trace-id') return 'expectedTraceId';\n\
+  });\n\nmock('getTimestampMillis', 1747945830456);"
 
 
 ___NOTES___
