@@ -50,7 +50,15 @@ function handlePageViewEvent(data, eventData) {
   const url = eventData.page_location || getRequestHeader('referer');
 
   if (url) {
-    const value = parseUrl(url).searchParams[data.clickIdParameterName];
+    const clickIdParameterName = data.clickIdParameterName || 'tblci';
+    const parsedUrl = parseUrl(url);
+    const searchParams = parsedUrl.searchParams;
+    const hash = parsedUrl.hash;
+
+    let value = searchParams[clickIdParameterName];
+    if (!value && hash) {
+      value = hash.split('#' + clickIdParameterName)[1];
+    }
 
     if (value) {
       const options = {

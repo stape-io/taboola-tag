@@ -8,7 +8,7 @@ The template supports two types of events:
 
 ### PageView
 
-When a user clicks on a Taboola ad, a `{click_id}` (e.g., `tbclid`) is appended to the landing page URL. This tag will:
+When a user clicks on a Taboola ad, a `{click_id}` (e.g., `tblci`) is appended to the landing page URL. This tag will:
 
 - Extract the click ID from the specified URL parameter.
 - Store it in the `taboola_cid` cookie.

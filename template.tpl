@@ -57,7 +57,8 @@ ___TEMPLATE_PARAMETERS___
         "name": "clickIdParameterName",
         "displayName": "URL parameter name for obtaining Taboola click_id",
         "simpleValueType": true,
-        "help": "More info about the \u003ci\u003eclick_id\u003c/i\u003e can be found in Taboola \u003ca href\u003d\"https://developers.taboola.com/pixel/docs/s2s-manual-integration#add-the-click-id-macro\" target\u003d\"_blank\"\u003edocumentation\u003c/a\u003e.",
+        "help": "More info about the \u003ci\u003eclick_id\u003c/i\u003e can be found in Taboola \u003ca href\u003d\"https://developers.taboola.com/pixel/docs/s2s-manual-integration#add-the-click-id-macro\" target\u003d\"_blank\"\u003edocumentation\u003c/a\u003e.\n\u003cbr\u003e\n\u003cbr\u003e\nDefault: \u003ci\u003etblci\u003c/i\u003e",
+        "defaultValue": "tblci",
         "valueValidators": [
           {
             "type": "NON_EMPTY"
@@ -460,7 +461,15 @@ function handlePageViewEvent(data, eventData) {
   const url = eventData.page_location || getRequestHeader('referer');
 
   if (url) {
-    const value = parseUrl(url).searchParams[data.clickIdParameterName];
+    const clickIdParameterName = data.clickIdParameterName || 'tblci';
+    const parsedUrl = parseUrl(url);
+    const searchParams = parsedUrl.searchParams;
+    const hash = parsedUrl.hash;
+
+    let value = searchParams[clickIdParameterName];
+    if (!value && hash) {
+      value = hash.split('#' + clickIdParameterName)[1];
+    }
 
     if (value) {
       const options = {
@@ -1097,13 +1106,32 @@ scenarios:
     assertApi('gtmOnSuccess').wasCalled();
     assertApi('gtmOnFailure').wasNotCalled();
     assertApi('setCookie').wasNotCalled();
-- name: PageView - Click ID cookie is set if URL contains it
+- name: PageView - Click ID cookie is set if URL contains it as query parameter
   code: |
     setAllMockDataByEventType('page_view');
 
     const expectedClickId = 'expectedClickId';
     mock('getAllEventData', {
-      page_location: 'https://example.com/?utm_source=test&tbclid=' + expectedClickId
+      page_location: 'https://example.com/?utm_source=test&tblci=' + expectedClickId
+    });
+
+    runCode(mockData);
+
+    assertApi('gtmOnSuccess').wasCalled();
+    assertApi('gtmOnFailure').wasNotCalled();
+    assertApi('setCookie').wasCalledWith('taboola_cid', expectedClickId, {
+      domain: 'auto',
+      path: '/',
+      secure: true,
+      httpOnly: false
+    }, false);
+- name: PageView - Click ID cookie is set if URL contains it as fragment
+  code: |
+    setAllMockDataByEventType('page_view');
+
+    const expectedClickId = 'expectedClickId';
+    mock('getAllEventData', {
+      page_location: 'https://example.com/?utm_source=test#tblci' + expectedClickId
     });
 
     runCode(mockData);
@@ -1128,7 +1156,7 @@ scenarios:
 
     const expectedClickId = 'expectedClickId';
     mock('getAllEventData', {
-      page_location: 'https://example.com/?utm_source=test&tbclid=' + expectedClickId
+      page_location: 'https://example.com/?utm_source=test&tblci=' + expectedClickId
     });
 
     runCode(mockData);
@@ -1470,7 +1498,7 @@ setup: "const JSON = require('JSON');\nconst Promise = require('Promise');\ncons
   \  logBigQueryDatasetId: expectedBigQuerySettings.logBigQueryDatasetId,\n  logBigQueryTableId:\
   \ expectedBigQuerySettings.logBigQueryTableId\n};\n\nconst setAllMockDataByEventType\
   \ = (type, objToBeMerged) => {\n  const mockDataByEventType = {\n    page_view:\
-  \ {\n      type: 'page_view',\n      clickIdParameterName: 'tbclid',\n      cookieDomain:\
+  \ {\n      type: 'page_view',\n      clickIdParameterName: 'tblci',\n      cookieDomain:\
   \ 'auto',\n      expiration: 0,\n    },\n    conversion: {\n      type: 'conversion',\n\
   \      redactIpAddress: false,\n      eventName: 'eventName',\n      orderId: 'orderId',\n\
   \      revenue: 'revenue',\n      currencyCode: 'currencyCode',\n      programId:\
