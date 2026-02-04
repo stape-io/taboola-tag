@@ -1,6 +1,8 @@
 homepage: 'https://stape.io/'
 documentation: 'https://github.com/stape-io/taboola-tag'
 versions:
+  - sha: 34e41dfba652bd6b8544dbb9c7195726382a0de6
+    changeNotes: Update consent section.
   - sha: 35970e2dcc960da5325bfdadaf4eb30d572ac949
     changeNotes: Added common cookie support.
   - sha: 5c9555f534a50c64cec537e69686fc4c5a11e1a6
