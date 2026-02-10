@@ -30,64 +30,72 @@ ___TEMPLATE_PARAMETERS___
 
 [
   {
-    "type": "RADIO",
-    "name": "type",
-    "displayName": "Event Type",
-    "radioItems": [
+    "type": "GROUP",
+    "name": "configGroup",
+    "displayName": "",
+    "groupStyle": "NO_ZIPPY",
+    "subParams": [
       {
-        "value": "page_view",
-        "displayValue": "PageView"
+        "type": "RADIO",
+        "name": "type",
+        "displayName": "Event Type",
+        "radioItems": [
+          {
+            "value": "page_view",
+            "displayValue": "PageView"
+          },
+          {
+            "value": "conversion",
+            "displayValue": "Conversion"
+          }
+        ],
+        "simpleValueType": true,
+        "defaultValue": "page_view",
+        "help": "\u003cb\u003ePageView\u003c/b\u003e - stores the {click_id} URL parameter inside the taboola_cid cookie\u003cbr\u003e\u003cbr\u003e\n\u003cb\u003eConversion\u003c/b\u003e - Send request with data about the conversion to the Taboola"
       },
       {
-        "value": "conversion",
-        "displayValue": "Conversion"
-      }
-    ],
-    "simpleValueType": true,
-    "defaultValue": "page_view",
-    "help": "\u003cb\u003ePageView\u003c/b\u003e - stores the {click_id} URL parameter inside the taboola_cid cookie\u003cbr\u003e\u003cbr\u003e\n\u003cb\u003eConversion\u003c/b\u003e - Send request with data about the conversion to the Taboola"
-  },
-  {
-    "type": "TEXT",
-    "name": "clickIdParameterName",
-    "displayName": "Url parameter name for obtaining Taboola click_id",
-    "simpleValueType": true,
-    "help": "More info about click_id can be found in the Taboola \u003ca href\u003d\"https://help.taboola.com/hc/en-us/articles/115006850567-How-to-Track-Conversions-Using-Server-to-Server-Integration-S2S-\" target\u003d\"_blank\"\u003edocumentation\u003c/a\u003e.",
-    "valueValidators": [
+        "type": "TEXT",
+        "name": "clickIdParameterName",
+        "displayName": "Url parameter name for obtaining Taboola click_id",
+        "simpleValueType": true,
+        "help": "More info about click_id can be found in the Taboola \u003ca href\u003d\"https://help.taboola.com/hc/en-us/articles/115006850567-How-to-Track-Conversions-Using-Server-to-Server-Integration-S2S-\" target\u003d\"_blank\"\u003edocumentation\u003c/a\u003e.",
+        "valueValidators": [
+          {
+            "type": "NON_EMPTY"
+          }
+        ],
+        "enablingConditions": [
+          {
+            "paramName": "type",
+            "paramValue": "page_view",
+            "type": "EQUALS"
+          }
+        ]
+      },
       {
-        "type": "NON_EMPTY"
-      }
-    ],
-    "enablingConditions": [
-      {
-        "paramName": "type",
-        "paramValue": "page_view",
-        "type": "EQUALS"
+        "type": "TEXT",
+        "name": "expiration",
+        "displayName": "Expiration time for the taboola_cid cookie in seconds.",
+        "simpleValueType": true,
+        "enablingConditions": [
+          {
+            "paramName": "type",
+            "paramValue": "page_view",
+            "type": "EQUALS"
+          }
+        ],
+        "valueValidators": [
+          {
+            "type": "NON_EMPTY"
+          },
+          {
+            "type": "NON_NEGATIVE_NUMBER"
+          }
+        ],
+        "defaultValue": 0,
+        "help": "Use 0 for saving only for the session."
       }
     ]
-  },
-  {
-    "type": "TEXT",
-    "name": "expiration",
-    "displayName": "Expiration time for the taboola_cid cookie in seconds.",
-    "simpleValueType": true,
-    "enablingConditions": [
-      {
-        "paramName": "type",
-        "paramValue": "page_view",
-        "type": "EQUALS"
-      }
-    ],
-    "valueValidators": [
-      {
-        "type": "NON_EMPTY"
-      },
-      {
-        "type": "NON_NEGATIVE_NUMBER"
-      }
-    ],
-    "defaultValue": 0,
-    "help": "Use 0 for saving only for the session."
   },
   {
     "type": "GROUP",
@@ -142,6 +150,31 @@ ___TEMPLATE_PARAMETERS___
   },
   {
     "type": "GROUP",
+    "name": "tagExecutionConsentSettingsGroup",
+    "displayName": "Tag Execution Consent Settings",
+    "groupStyle": "ZIPPY_CLOSED",
+    "subParams": [
+      {
+        "type": "RADIO",
+        "name": "adStorageConsent",
+        "radioItems": [
+          {
+            "value": "optional",
+            "displayValue": "Send data always"
+          },
+          {
+            "value": "required",
+            "displayValue": "Send data in case marketing consent given",
+            "help": "Aborts the tag execution if marketing consent (\u003ci\u003ead_storage\u003c/i\u003e Google Consent Mode or Stape\u0027s Data Tag parameter) is not given."
+          }
+        ],
+        "simpleValueType": true,
+        "defaultValue": "optional"
+      }
+    ]
+  },
+  {
+    "type": "GROUP",
     "name": "logsGroup",
     "displayName": "Logs Settings",
     "groupStyle": "ZIPPY_CLOSED",
@@ -180,17 +213,29 @@ ___TEMPLATE_PARAMETERS___
 
 ___SANDBOXED_JS_FOR_SERVER___
 
-const sendHttpRequest = require('sendHttpRequest');
-const setCookie = require('setCookie');
-const parseUrl = require('parseUrl');
-const JSON = require('JSON');
-const getRequestHeader = require('getRequestHeader');
 const encodeUriComponent = require('encodeUriComponent');
+const getAllEventData = require('getAllEventData');
+const getContainerVersion = require('getContainerVersion');
 const getCookieValues = require('getCookieValues');
 const getEventData = require('getEventData');
-
+const getRequestHeader = require('getRequestHeader');
+const getType = require('getType');
+const JSON = require('JSON');
 const logToConsole = require('logToConsole');
-const getContainerVersion = require('getContainerVersion');
+const makeString = require('makeString');
+const parseUrl = require('parseUrl');
+const sendHttpRequest = require('sendHttpRequest');
+const setCookie = require('setCookie');
+
+/*==============================================================================
+==============================================================================*/
+
+const eventData = getAllEventData();
+
+if (!isConsentGivenOrNotRequired(data, eventData)) {
+  return data.gtmOnSuccess();
+}
+
 const containerVersion = getContainerVersion();
 const isDebug = containerVersion.debugMode;
 const isLoggingEnabled = determinateIsLoggingEnabled();
@@ -215,15 +260,14 @@ if (data.type === 'page_view') {
       setCookie('taboola_cid', value, options, false);
     }
   }
-
   data.gtmOnSuccess();
 } else {
   const commonCookie = getEventData('common_cookie') || {};
-  const clickId = data.clickId || getCookieValues('taboola_cid')[0] || commonCookie.taboola_cid || '';
+  const clickId =
+    data.clickId || getCookieValues('taboola_cid')[0] || commonCookie.taboola_cid || '';
 
   if (!clickId) {
     data.gtmOnSuccess();
-
     return;
   }
 
@@ -279,9 +323,20 @@ if (data.type === 'page_view') {
   );
 }
 
+/*==============================================================================
+Helpers
+==============================================================================*/
+
+function isConsentGivenOrNotRequired(data, eventData) {
+  if (data.adStorageConsent !== 'required') return true;
+  if (eventData.consent_state) return !!eventData.consent_state.ad_storage;
+  const xGaGcs = eventData['x-ga-gcs'] || ''; // x-ga-gcs is a string like "G110"
+  return xGaGcs[2] === '1';
+}
+
 function enc(data) {
-  data = data || '';
-  return encodeUriComponent(data);
+  if (['null', 'undefined'].indexOf(getType(data)) !== -1) data = '';
+  return encodeUriComponent(makeString(data));
 }
 
 function determinateIsLoggingEnabled() {
@@ -312,26 +367,10 @@ ___SERVER_PERMISSIONS___
       },
       "param": [
         {
-          "key": "keyPatterns",
-          "value": {
-            "type": 2,
-            "listItem": [
-              {
-                "type": 1,
-                "string": "page_location"
-              },
-              {
-                "type": 1,
-                "string": "common_cookie"
-              }
-            ]
-          }
-        },
-        {
           "key": "eventDataAccess",
           "value": {
             "type": 1,
-            "string": "specific"
+            "string": "any"
           }
         }
       ]
