@@ -207,6 +207,80 @@ ___TEMPLATE_PARAMETERS___
         "type": "EQUALS"
       }
     ]
+  },
+  {
+    "displayName": "BigQuery Logs Settings",
+    "name": "bigQueryLogsGroup",
+    "groupStyle": "ZIPPY_CLOSED",
+    "type": "GROUP",
+    "enablingConditions": [
+      {
+        "paramName": "type",
+        "paramValue": "page_view",
+        "type": "NOT_EQUALS"
+      }
+    ],
+    "subParams": [
+      {
+        "type": "RADIO",
+        "name": "bigQueryLogType",
+        "radioItems": [
+          {
+            "value": "no",
+            "displayValue": "Do not log to BigQuery"
+          },
+          {
+            "value": "always",
+            "displayValue": "Log to BigQuery"
+          }
+        ],
+        "simpleValueType": true,
+        "defaultValue": "no"
+      },
+      {
+        "type": "GROUP",
+        "name": "logsBigQueryConfigGroup",
+        "groupStyle": "NO_ZIPPY",
+        "subParams": [
+          {
+            "type": "TEXT",
+            "name": "logBigQueryProjectId",
+            "displayName": "BigQuery Project ID",
+            "simpleValueType": true,
+            "help": "Optional. If omitted, it will be retrieved from the environment variable GOOGLE_CLOUD_PROJECT where the server container is running."
+          },
+          {
+            "type": "TEXT",
+            "name": "logBigQueryDatasetId",
+            "displayName": "BigQuery Dataset ID",
+            "simpleValueType": true,
+            "valueValidators": [
+              {
+                "type": "NON_EMPTY"
+              }
+            ]
+          },
+          {
+            "type": "TEXT",
+            "name": "logBigQueryTableId",
+            "displayName": "BigQuery Table ID",
+            "simpleValueType": true,
+            "valueValidators": [
+              {
+                "type": "NON_EMPTY"
+              }
+            ]
+          }
+        ],
+        "enablingConditions": [
+          {
+            "paramName": "bigQueryLogType",
+            "paramValue": "always",
+            "type": "EQUALS"
+          }
+        ]
+      }
+    ]
   }
 ]
 
