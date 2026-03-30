@@ -14,6 +14,11 @@ ___INFO___
   "version": 1,
   "securityGroups": [],
   "displayName": "Taboola",
+  "categories": [
+    "AFFILIATE_MARKETING",
+    "ADVERTISING",
+    "CONVERSIONS"
+  ],
   "brand": {
     "id": "github.com_stape-io",
     "displayName": "stape-io",
@@ -216,8 +221,8 @@ ___TEMPLATE_PARAMETERS___
     "enablingConditions": [
       {
         "paramName": "type",
-        "paramValue": "page_view",
-        "type": "NOT_EQUALS"
+        "paramValue": "conversion",
+        "type": "EQUALS"
       }
     ],
     "subParams": [
@@ -247,7 +252,7 @@ ___TEMPLATE_PARAMETERS___
             "name": "logBigQueryProjectId",
             "displayName": "BigQuery Project ID",
             "simpleValueType": true,
-            "help": "Optional. If omitted, it will be retrieved from the environment variable GOOGLE_CLOUD_PROJECT where the server container is running."
+            "help": "Optional.  \n\u003cbr\u003e\u003cbr\u003e  \nIf omitted, it will be retrieved from the environment variable \u003cI\u003eGOOGLE_CLOUD_PROJECT\u003c/i\u003e where the server container is running. If the server container is running on Google Cloud, \u003cI\u003eGOOGLE_CLOUD_PROJECT\u003c/i\u003e will already be set to the Google Cloud project\u0027s ID."
           },
           {
             "type": "TEXT",
@@ -287,12 +292,14 @@ ___TEMPLATE_PARAMETERS___
 
 ___SANDBOXED_JS_FOR_SERVER___
 
+const BigQuery = require('BigQuery');
 const encodeUriComponent = require('encodeUriComponent');
 const getAllEventData = require('getAllEventData');
 const getContainerVersion = require('getContainerVersion');
 const getCookieValues = require('getCookieValues');
 const getEventData = require('getEventData');
 const getRequestHeader = require('getRequestHeader');
+const getTimestampMillis = require('getTimestampMillis');
 const getType = require('getType');
 const JSON = require('JSON');
 const logToConsole = require('logToConsole');
@@ -300,8 +307,6 @@ const makeString = require('makeString');
 const parseUrl = require('parseUrl');
 const sendHttpRequest = require('sendHttpRequest');
 const setCookie = require('setCookie');
-const BigQuery = require('BigQuery');
-const getTimestampMillis = require('getTimestampMillis');
 
 /*==============================================================================
 ==============================================================================*/
@@ -311,12 +316,6 @@ const eventData = getAllEventData();
 if (!isConsentGivenOrNotRequired(data, eventData)) {
   return data.gtmOnSuccess();
 }
-
-const containerVersion = getContainerVersion();
-const isDebug = containerVersion.debugMode;
-const isLoggingEnabled = determinateIsLoggingEnabled();
-const isBigQueryLoggingEnabled = determinateIsLoggingEnabledForBigQuery();
-const traceId = getRequestHeader('trace-id');
 
 if (data.type === 'page_view') {
   const url = getEventData('page_location') || getRequestHeader('referer');
@@ -337,7 +336,7 @@ if (data.type === 'page_view') {
       setCookie('taboola_cid', value, options, false);
     }
   }
-  data.gtmOnSuccess();
+  return data.gtmOnSuccess();
 } else {
   const commonCookie = getEventData('common_cookie') || {};
   const clickId =
@@ -348,10 +347,9 @@ if (data.type === 'page_view') {
       Name: 'Taboola',
       Type: 'Message',
       EventName: data.eventName,
-      ResponseBody: 'No click ID found. Taboola request skipped.'
+      Message: 'No Click ID found. Taboola request skipped.'
     });
-    data.gtmOnSuccess();
-    return;
+    return data.gtmOnSuccess();
   }
 
   let requestUrl =
@@ -371,14 +369,7 @@ if (data.type === 'page_view') {
     Type: 'Request',
     EventName: data.eventName,
     RequestMethod: 'POST',
-    RequestUrl: requestUrl,
-    RequestBody: {
-      name: data.eventName,
-      'click-id': clickId,
-      revenue: data.revenue,
-      currency: data.currencyCode,
-      orderid: data.orderId
-    }
+    RequestUrl: requestUrl
   });
 
   sendHttpRequest(
@@ -419,35 +410,15 @@ function enc(data) {
   return encodeUriComponent(makeString(data));
 }
 
-function determinateIsLoggingEnabled() {
-  if (!data.logType) {
-    return isDebug;
-  }
-
-  if (data.logType === 'no') {
-    return false;
-  }
-
-  if (data.logType === 'debug') {
-    return isDebug;
-  }
-
-  return data.logType === 'always';
-}
-
-function determinateIsLoggingEnabledForBigQuery() {
-  if (data.bigQueryLogType === 'no') return false;
-  return data.bigQueryLogType === 'always';
-}
-
 function log(rawDataToLog) {
   const logDestinationsHandlers = {};
-  if (isLoggingEnabled) logDestinationsHandlers.console = logConsole;
-  if (isBigQueryLoggingEnabled) logDestinationsHandlers.bigQuery = logToBigQuery;
+  if (determinateIsLoggingEnabled()) logDestinationsHandlers.console = logConsole;
+  if (determinateIsLoggingEnabledForBigQuery()) logDestinationsHandlers.bigQuery = logToBigQuery;
 
-  rawDataToLog.TraceId = traceId;
+  rawDataToLog.TraceId = getRequestHeader('trace-id');
 
   const keyMappings = {
+    // No transformation for Console is needed.
     bigQuery: {
       Name: 'tag_name',
       Type: 'type',
@@ -498,6 +469,33 @@ function logToBigQuery(dataToLog) {
   });
 
   BigQuery.insert(connectionInfo, [dataToLog], { ignoreUnknownValues: true });
+}
+
+function determinateIsLoggingEnabled() {
+  const containerVersion = getContainerVersion();
+  const isDebug = !!(
+    containerVersion &&
+    (containerVersion.debugMode || containerVersion.previewMode)
+  );
+
+  if (!data.logType) {
+    return isDebug;
+  }
+
+  if (data.logType === 'no') {
+    return false;
+  }
+
+  if (data.logType === 'debug') {
+    return isDebug;
+  }
+
+  return data.logType === 'always';
+}
+
+function determinateIsLoggingEnabledForBigQuery() {
+  if (data.bigQueryLogType === 'no') return false;
+  return data.bigQueryLogType === 'always';
 }
 
 
@@ -843,5 +841,3 @@ scenarios: []
 ___NOTES___
 
 Created on 10/11/2021, 09:29:27
-
-
