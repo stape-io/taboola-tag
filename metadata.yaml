@@ -1,6 +1,8 @@
 homepage: 'https://stape.io/'
 documentation: 'https://github.com/stape-io/taboola-tag'
 versions:
+  - sha: 669fc9707ca7006815d7f2b84d8e560a12e8eb4f
+    changeNotes: Logging removal.
   - sha: 3cceedc09e1fb4b4901a6234664d302d023e1d11
     changeNotes: Added BigQuery logging support.
   - sha: b6e4cfb6033513b3ce55316a8d8f4f49c01f7d72
