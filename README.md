@@ -10,7 +10,7 @@ Taboola tag can track two event types:
 - **PageView** event captures Taboola `{click_id}` from a visitor's browser and stores it in `taboola_cid` cookie for later use. You can set the URL parameter name and cookie lifetime.
 - **Conversion** events send a request to Taboola postback URL. Adding event name is mandatory, revenue and currency fields are optional.
 
-### Useful links:
+### Useful Resources
 - [Taboola server-side tracking using server Google Tag Manager](https://stape.io/blog/taboola-server-side-tracking-using-server-google-tag-manager)
 
 ## Open Source
