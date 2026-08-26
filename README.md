@@ -1,13 +1,13 @@
 # Taboola S2S Tag for Google Tag Manager Server Side
 
-When a user clicks on an ad, the `{click_id}` parameter is generated in their URL. Our tag will store `{click_id}` inside the `taboola_cid` cookie.
+When a user clicks on an ad, the `tblci` parameter is generated in their URL. Our tag will store `tblci` inside the `taboola_cid` cookie.
 When a conversion event triggers, it sends a request to Taboola Postback URL with `click_id`, event name, value, and currency.
 
 ## How to use the Taboola S2S Tag
 
 Taboola tag can track two event types:
 
-- **PageView** event captures Taboola `{click_id}` from a visitor's browser and stores it in `taboola_cid` cookie for later use. You can set the URL parameter name and cookie lifetime.
+- **PageView** event captures Taboola `tblci` from a visitor's browser and stores it in `taboola_cid` cookie for later use. You can set the URL parameter name and cookie lifetime.
 - **Conversion** events send a request to Taboola postback URL. Adding event name is mandatory, revenue and currency fields are optional.
 
 ### Useful Resources

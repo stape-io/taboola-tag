@@ -37,8 +37,6 @@ ___TEMPLATE_PARAMETERS___
   {
     "type": "GROUP",
     "name": "configGroup",
-    "displayName": "",
-    "groupStyle": "NO_ZIPPY",
     "subParams": [
       {
         "type": "RADIO",
@@ -56,14 +54,14 @@ ___TEMPLATE_PARAMETERS___
         ],
         "simpleValueType": true,
         "defaultValue": "page_view",
-        "help": "\u003cb\u003ePageView\u003c/b\u003e - stores the {click_id} URL parameter inside the taboola_cid cookie\u003cbr\u003e\u003cbr\u003e\n\u003cb\u003eConversion\u003c/b\u003e - Send request with data about the conversion to the Taboola"
+        "help": "\u003cb\u003ePageView\u003c/b\u003e - Stores the Click ID in the \u003ci\u003etblci\u003c/i\u003e URL parameter inside the \u003ci\u003etaboola_cid\u003c/i\u003e cookie\n\u003cbr\u003e\u003cbr\u003e\n\u003cb\u003eConversion\u003c/b\u003e - Send request with data about the conversion to the Taboola"
       },
       {
         "type": "TEXT",
         "name": "clickIdParameterName",
         "displayName": "URL parameter name for obtaining Taboola Click ID",
         "simpleValueType": true,
-        "help": "More info about the Click ID can be found in the Taboola \u003ca href\u003d\"https://help.taboola.com/hc/en-us/articles/115006850567-How-to-Track-Conversions-Using-Server-to-Server-Integration-S2S-\" target\u003d\"_blank\"\u003edocumentation\u003c/a\u003e.",
+        "help": "By default, it\u0027s the \u003ci\u003etblci\u003c/i\u003e parameter. Only modify it if you are using a custom parameter name.\n\u003cbr/\u003e\nMore info about the Click ID can be found in the Taboola \u003ca href\u003d\"https://help.taboola.com/hc/en-us/articles/115006850567-How-to-Track-Conversions-Using-Server-to-Server-Integration-S2S-\" target\u003d\"_blank\"\u003edocumentation\u003c/a\u003e.",
         "valueValidators": [
           {
             "type": "NON_EMPTY"
@@ -75,12 +73,14 @@ ___TEMPLATE_PARAMETERS___
             "paramValue": "page_view",
             "type": "EQUALS"
           }
-        ]
+        ],
+        "defaultValue": "tblci",
+        "valueHint": "tblci"
       },
       {
         "type": "TEXT",
         "name": "expiration",
-        "displayName": "Expiration time for the taboola_cid cookie in seconds.",
+        "displayName": "Expiration time for the taboola_cid cookie in seconds",
         "simpleValueType": true,
         "enablingConditions": [
           {
@@ -209,7 +209,7 @@ if (data.type === 'page_view') {
   const url = getEventData('page_location') || getRequestHeader('referer');
 
   if (url) {
-    const value = parseUrl(url).searchParams[data.clickIdParameterName];
+    const value = parseUrl(url).searchParams[data.clickIdParameterName || 'tblci'];
 
     if (value) {
       const options = {
@@ -556,6 +556,9 @@ scenarios: []
 
 
 ___NOTES___
+
+2026-08-26 Change Notes:
+ - Added fallback to 'tblci' when Click ID URL Parameter name is not set.
 
 2026-05-25 Change Notes:
  - Logging removal.
