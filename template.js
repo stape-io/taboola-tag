@@ -24,7 +24,7 @@ if (data.type === 'page_view') {
   const url = getEventData('page_location') || getRequestHeader('referer');
 
   if (url) {
-    const value = parseUrl(url).searchParams[data.clickIdParameterName];
+    const value = parseUrl(url).searchParams[data.clickIdParameterName || 'tblci'];
 
     if (value) {
       const options = {
