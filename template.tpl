@@ -61,7 +61,7 @@ ___TEMPLATE_PARAMETERS___
         "name": "clickIdParameterName",
         "displayName": "URL parameter name for obtaining Taboola Click ID",
         "simpleValueType": true,
-        "help": "By default, it\u0027s the \u003ci\u003etblci\u003c/i\u003e parameter. Only modify it if you are using a custom parameter name.\n\u003cbr/\u003e\nMore info about the Click ID can be found in the Taboola \u003ca href\u003d\"https://help.taboola.com/hc/en-us/articles/115006850567-How-to-Track-Conversions-Using-Server-to-Server-Integration-S2S-\" target\u003d\"_blank\"\u003edocumentation\u003c/a\u003e.",
+        "help": "By default, it\u0027s the \u003ci\u003etblci\u003c/i\u003e parameter. Only modify it if you are using a custom parameter name.\n\u003cbr/\u003e\nMore info about the Click ID can be found in the Taboola \u003ca href\u003d\"https://developers.taboola.com/pixel/docs/s2s-manual-integration#understanding-the-click-id-parameter\"\u003edocumentation\u003c/a\u003e.",
         "valueValidators": [
           {
             "type": "NON_EMPTY"
@@ -557,10 +557,13 @@ scenarios: []
 
 ___NOTES___
 
-2026-08-26 Change Notes:
+2026-09-08 - Change Notes:
+ - Fixed Click ID documentation URL.
+
+2026-08-26 - Change Notes:
  - Added fallback to 'tblci' when Click ID URL Parameter name is not set.
 
-2026-05-25 Change Notes:
+2026-05-25 - Change Notes:
  - Logging removal.
 
 Created on 10/11/2021, 09:29:27
