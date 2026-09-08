@@ -1,6 +1,8 @@
 homepage: 'https://stape.io/'
 documentation: 'https://github.com/stape-io/taboola-tag'
 versions:
+  - sha: 8465e09dd5b0a622cff21e576b9ee76e2634ce79
+    changeNotes: Fixed Click ID documentation URL.
   - sha: 39574263e459ec0d64dea2a958bbd769e70a65f4
     changeNotes: Added fallback to 'tblci' when Click ID URL Parameter name is not set.
   - sha: 669fc9707ca7006815d7f2b84d8e560a12e8eb4f
